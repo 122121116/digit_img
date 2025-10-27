@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 def keep_largest_connected_component(mask):
     # 确保输入为uint8类型
     if mask.dtype != np.uint8:
@@ -54,19 +53,18 @@ def extract_skin_mask(image_path):
 def apply_morphological_operations(mask):
     # 将布尔蒙版转换为uint8 (0和255)
     mask_uint8 = mask.astype(np.uint8) * 255
-    mask_uint8 = keep_largest_connected_component(mask_uint8)
 
     # 应用闭操作
-    kernel_size = (11, 11)
+    kernel_size = (12, 12)
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, kernel_size)
     closed_mask = cv2.morphologyEx(mask_uint8, cv2.MORPH_CLOSE, kernel)
-
+    closed_mask = keep_largest_connected_component(closed_mask)
     # 应用开操作
-    kernel_size = (10, 10)
+    kernel_size = (15, 15)
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, kernel_size)
     opened_mask = cv2.morphologyEx(closed_mask, cv2.MORPH_OPEN, kernel)
 
-    return opened_mask
+    return keep_largest_connected_component(opened_mask)
 
 def apply_mask_to_image(original_rgb, mask):
     # 确保蒙版是二值的 (0和255)
@@ -147,8 +145,10 @@ if __name__ == "__main__":
 
     image_path1 = "img_1.png"
     image_path2 = "img_2.png"
+    image_path3 = "img_3.png"
 
-    original_rgb, skin_mask, closed_mask, masked_image = process_image_pipeline(image_path1)
-    original_rgb, skin_mask, closed_mask, masked_image = process_image_pipeline(image_path2)
+    process_image_pipeline(image_path1)
+    process_image_pipeline(image_path2)
+    process_image_pipeline(image_path3)
 
 
